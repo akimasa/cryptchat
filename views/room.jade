@@ -1,0 +1,35 @@
+doctype 5
+html
+  head
+    title= room
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    script(src="/socket.io/socket.io.js")
+    script(src="/javascripts/CryptoJS/aes.js")
+    script(src="/javascripts/hash.js")
+    script(src="/javascripts/jquery-1.10.1.min.js")
+    script(src="/javascripts/jsbn.js")
+    script(src="/javascripts/random.js")
+    script(src="/javascripts/rsa.js")
+    script(src="/javascripts/trand.js")
+    script(src="/javascripts/aes.js")
+    script(src="/javascripts/api.js")
+    script(src="/javascripts/room.js")
+  body
+
+    h1 Welcome to #{room}
+    input(type="hidden",id="room",value=room)
+    form#login(onsubmit="genKey();return false")
+      input#email(type="text",placeholder="email")
+      input#password(type="password",placeholder="password")
+      input(type="submit",value="login")
+      progress#progress(max=1000,value=0)
+    input#key
+    input#seskey(placeholder="seskey")
+    input(type="button",onclick="store()",value="store")
+    div#main
+      div#chat messege appers here
+      div#dialogs dialogs appears here
+      form#sendform(onsubmit="send();return false")
+        span#myemail
+        input#messege
+        input(type="submit",value="send")
