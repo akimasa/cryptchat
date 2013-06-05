@@ -228,6 +228,7 @@ function makeDialog(callback,mes,yes,no){
 				$(this.parentNode).remove();
 			}));
 	$("#dialogs").append($oDiv);
+	return $oDiv;
 }
 
 function store(){
@@ -254,7 +255,7 @@ function reqSesKey(mes){
 			$p.append(document.createTextNode("("));
 			$p.append($("<span>").text(pubKey.getFingerprint()).addClass("fingerprint"));		
 			$p.append(document.createTextNode(")を信用して鍵を送る？"));
-			makeDialog(function (answer){
+			var dialog = makeDialog(function (answer){
 				if(answer){
 					console.log("yes")
 					console.log(pubKey.getFingerprint());
@@ -262,6 +263,7 @@ function reqSesKey(mes){
 					sendSesKey(encSesKey);
 				}
 			},$p);
+			setTimeout(function(){ dialog.hide(1000,function() { dialog.remove() }) },10000);
 		}
 	}
 }
