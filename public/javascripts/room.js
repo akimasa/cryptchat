@@ -91,16 +91,48 @@ function decMes(cipher){
 	var mesObj = JSON.parse(mesJson);
 	return mesObj;
 }
+function hashDB(name){
+	this.name = name;
+	try {
+		this.db = JSON.parse(localStorage.getItem(name));
+	if(!this.db)
+		this.db = {};
+	} catch (e){
+		this.db = {}
+	}
+}
+hashDB.prototype.getItem = function (item){
+	try{
+	return this.db[item];
+	} catch(e) {
+		return null;
+	}
+}
+hashDB.prototype.setItem = function (item, data){
+	this.db[item] = data;
+	localStorage.setItem(this.name,JSON.stringify(this.db));
+}
+hashDB.prototype.deleteItem = function (item){
+	delete this.db[item];
+	localStorage.setItem(this.name,JSON.stringify(this.db));
+}
+hashDB.prototype.clear = function (){
+	localStorage.setItem(this.name,"");
+	this.db = {};
+}
 var socket;
 var myRSAKey;
-var trusted = {};
+var trusted;
 $(function(){
+	trusted = new hashDB("trusted_"+$("#room").val());
 	socket = io.connect('/');
 	socket.on("mes",function(mes){
 		if(mes.mode == "mes")
 		update(mes);
 		if(mes.mode == "reqSesKey")
 		reqSesKey(mes);
+		if(mes.mode == "resSesKey")
+		resSesKey(mes);
 	});
 	socket.emit("init",{room:$("#room").val()});
 	//debug code
@@ -208,21 +240,44 @@ function reqSesKey(mes){
 	var sesKey = $("#seskey").val();
 	var pubKey = new RSAKey();
 	pubKey.loadJSON(mes.pubKey);
+	var encSesKey = pubKey.encryptSessionKey(sesKey);
 	if(pubKey.getFingerprint() == myRSAKey.getFingerprint()){
 		console.log("pubkey=mykey. return");
 		return;
 	} else {
-		var encSesKey = pubKey.encryptSessionKey(sesKey);
-		console.log(encSesKey);
-		makeDialog(function (answer){
-			if(answer){
-				console.log("yes")
-				console.log(pubKey.getFingerprint());
-			}
-		},pubKey.getFingerprint()+"に鍵を送る？");
+		if(trusted.getItem(pubKey.getFingerprint())){
+			console.log("trusted send key");
+			sendSesKey(encSesKey);
+		} else {
+			var $p = $("<span>").addClass("askTrust");
+			$p.append($("<span>").text(mes.mail).addClass("mail"));		
+			$p.append(document.createTextNode("("));
+			$p.append($("<span>").text(pubKey.getFingerprint()).addClass("fingerprint"));		
+			$p.append(document.createTextNode(")を信用して鍵を送る？"));
+			makeDialog(function (answer){
+				if(answer){
+					console.log("yes")
+					console.log(pubKey.getFingerprint());
+					trusted.setItem(pubKey.getFingerprint(),{mail:mes.mail});
+					sendSesKey(encSesKey);
+				}
+			},$p);
+		}
 	}
+}
+function sendSesKey(encSesKey){
+	socket.emit("mes",{encKey:encSesKey,
+		mode:"resSesKey"});
+
+}
+function resSesKey(mes){
+	if($("#seskey").val() != "")
+		return;
+	$("#seskey").val(myRSAKey.decryptSessionKey(mes.encKey));
 }
 function emitPubKey(){
 	var pubKeyStr = myRSAKey.toPubString();
-	socket.emit("mes",{pubKey:pubKeyStr,mode:"reqSesKey"});
+	socket.emit("mes",{pubKey:pubKeyStr,
+		mail:$("#email").val(),
+		mode:"reqSesKey"});
 }

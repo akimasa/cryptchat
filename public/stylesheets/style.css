@@ -9,3 +9,9 @@ a {
 .dialog .yes,.dialog .no{
 	margin: 10px;
 }
+.askTrust .fingerprint{
+//	font-size: 50%;
+}
+.askTrust .mail {
+	font-size: 150%;
+}
