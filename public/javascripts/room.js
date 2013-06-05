@@ -133,6 +133,8 @@ $(function(){
 		reqSesKey(mes);
 		if(mes.mode == "resSesKey")
 		resSesKey(mes);
+		if(mes.mode == "reKey")
+		reKey(mes);
 	});
 	socket.emit("init",{room:$("#room").val()});
 	//debug code
@@ -168,9 +170,20 @@ function seedrandom(){
 	r = new trueRandomGen();
 	r.collectRandom(function(s){ 
 			Math.seedrandom(s);
+			//login後の処理
 			$("#login").css("display","none");
 			$("#main").css("display","");
 			$("#myemail").text($("#email").val());
+			emitPubKey();
+			setTimeout(function(){
+				console.log("15seconds passed");
+				if($("#seskey").val() == ""){
+					console.log("genseskey & emitrekey");
+					genSesKey();
+					emitReKey();
+				}
+
+			},15000);
 			},document.getElementById("progress"));
 }
 
@@ -277,9 +290,30 @@ function resSesKey(mes){
 		return;
 	$("#seskey").val(myRSAKey.decryptSessionKey(mes.encKey));
 }
+function reKey(mes){
+	console.log("rekey: emitpubkey");
+	if(mes.fingerprint == myRSAKey.getFingerprint()){
+		console.log("my rekey req.ignore")
+	} else {
+		emitPubKey();
+	}
+}
 function emitPubKey(){
+	$("#seskey").val("");
 	var pubKeyStr = myRSAKey.toPubString();
 	socket.emit("mes",{pubKey:pubKeyStr,
 		mail:$("#email").val(),
 		mode:"reqSesKey"});
+}
+function emitReKey(){
+	socket.emit("mes",{mode:"reKey",fingerprint:myRSAKey.getFingerprint()});
+}
+function genSesKey(){
+
+	var key = new Array(32);
+	var r = new SecureRandom();
+	r.nextBytes(key);
+
+	var sessionKey = cryptico.bytes2string(key);
+	$("#seskey").val(sessionKey);
 }
