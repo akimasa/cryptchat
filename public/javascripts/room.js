@@ -111,9 +111,10 @@ $(function(){
 
 });
 function genKey(){
+	var randseed = $("#email").val() + ":" + $("#password").val();
 	try{
 		var key = localStorage.getItem("key");
-		var keyJSON = CryptoJS.AES.decrypt(key ,$("#password").val()).toString(CryptoJS.enc.Utf8);
+		var keyJSON = CryptoJS.AES.decrypt(key ,randseed).toString(CryptoJS.enc.Utf8);
 		var keyObj = JSON.parse(keyJSON);
 		var keyStr = JSON.stringify(keyObj);
 		$("#key").val(keyStr);
@@ -122,12 +123,11 @@ function genKey(){
 	} catch(e) {
 		console.log(e);
 		//return;
-		var randseed = $("#email").val() + $("#password").val();
 		myRSAKey = cryptico.generateRSAKey(randseed,1024);
 		$("#key").val(myRSAKey.toString());
 
 		var key = $("#key").val();
-		var enckey = CryptoJS.AES.encrypt(key,$("#password").val()).toString();
+		var enckey = CryptoJS.AES.encrypt(key,randseed).toString();
 		localStorage.setItem("key",enckey);
 	}
 	seedrandom();
