@@ -127,17 +127,6 @@ var myID;
 $(function(){
 	trusted = new hashDB("trusted_"+$("#room").val());
 	socket = io.connect('/');
-	socket.on("mes",function(mes){
-		if(mes.mode == "mes")
-		update(mes);
-		if(mes.mode == "reqSesKey")
-		reqSesKey(mes);
-		if(mes.mode == "resSesKey")
-		resSesKey(mes);
-		if(mes.mode == "reKey")
-		reKey(mes);
-	});
-	socket.emit("init",{room:$("#room").val()});
 	//debug code
 	$("#email").val("test@example.com");
 	$("#password").val("password");
@@ -172,6 +161,19 @@ function seedrandom(){
 	r.collectRandom(function(s){ 
 			Math.seedrandom(s);
 			//login後の処理
+
+			socket.on("mes",function(mes){
+				if(mes.mode == "mes")
+					update(mes);
+				if(mes.mode == "reqSesKey")
+					reqSesKey(mes);
+				if(mes.mode == "resSesKey")
+					resSesKey(mes);
+				if(mes.mode == "reKey")
+					reKey(mes);
+			});
+			socket.emit("init",{room:$("#room").val()});
+
 			$("#login").css("display","none");
 			$("#main").css("display","");
 			$("#myemail").text($("#email").val());
