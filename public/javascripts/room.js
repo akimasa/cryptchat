@@ -148,7 +148,10 @@ function genKey(){
 	} catch(e) {
 		console.log(e);
 		//return;
+		var before = (new Date()).getTime();
 		myRSAKey = cryptico.generateRSAKey(randseed,1024);
+		var after = (new Date().getTime());
+		console.log("generateRSAKey:"+(after-before)+"ms");
 		$("#key").val(myRSAKey.toString());
 
 		var key = $("#key").val();
