@@ -174,6 +174,7 @@ function seedrandom(){
 			$("#login").css("display","none");
 			$("#main").css("display","");
 			$("#myemail").text($("#email").val());
+			$("#messege").attr("disabled","disabled");
 			emitPubKey();
 			setTimeout(function(){
 				console.log("15seconds passed");
@@ -289,6 +290,7 @@ function resSesKey(mes){
 	if($("#seskey").val() != "")
 		return;
 	$("#seskey").val(myRSAKey.decryptSessionKey(mes.encKey));
+	$("#messege").removeAttr("disabled");
 }
 function reKey(mes){
 	console.log("rekey: emitpubkey");
@@ -316,4 +318,5 @@ function genSesKey(){
 
 	var sessionKey = cryptico.bytes2string(key);
 	$("#seskey").val(sessionKey);
+	$("#messege").removeAttr("disabled");
 }
