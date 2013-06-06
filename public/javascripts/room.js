@@ -123,6 +123,7 @@ hashDB.prototype.clear = function (){
 var socket;
 var myRSAKey;
 var trusted;
+var myID;
 $(function(){
 	trusted = new hashDB("trusted_"+$("#room").val());
 	socket = io.connect('/');
@@ -175,6 +176,7 @@ function seedrandom(){
 			$("#main").css("display","");
 			$("#myemail").text($("#email").val());
 			$("#messege").attr("disabled","disabled");
+			myID = MD5(myRSAKey.getFingerprint() + (new Date()).getTime());
 			emitPubKey();
 			setTimeout(function(){
 				console.log("15seconds passed");
@@ -256,8 +258,8 @@ function reqSesKey(mes){
 	var pubKey = new RSAKey();
 	pubKey.loadJSON(mes.pubKey);
 	var encSesKey = pubKey.encryptSessionKey(sesKey);
-	if(pubKey.getFingerprint() == myRSAKey.getFingerprint()){
-		console.log("pubkey=mykey. return");
+	if(mes.id == myID){
+		console.log("mes.id=myID. return");
 		return;
 	} else {
 		if(trusted.getItem(pubKey.getFingerprint())){
@@ -294,7 +296,7 @@ function resSesKey(mes){
 }
 function reKey(mes){
 	console.log("rekey: emitpubkey");
-	if(mes.fingerprint == myRSAKey.getFingerprint()){
+	if(mes.id == myID){
 		console.log("my rekey req.ignore")
 	} else {
 		emitPubKey();
@@ -305,10 +307,11 @@ function emitPubKey(){
 	var pubKeyStr = myRSAKey.toPubString();
 	socket.emit("mes",{pubKey:pubKeyStr,
 		mail:$("#email").val(),
+		id:myID,
 		mode:"reqSesKey"});
 }
 function emitReKey(){
-	socket.emit("mes",{mode:"reKey",fingerprint:myRSAKey.getFingerprint()});
+	socket.emit("mes",{mode:"reKey",id: myID});
 }
 function genSesKey(){
 
