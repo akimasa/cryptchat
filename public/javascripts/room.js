@@ -124,6 +124,7 @@ var socket;
 var myRSAKey;
 var trusted;
 var myID;
+var waitIHaveKeyTimer;
 $(function(){
 	trusted = new hashDB("trusted_"+$("#room").val());
 	socket = io.connect('/');
@@ -153,6 +154,8 @@ function genKey(){
 		var key = $("#key").val();
 		var enckey = CryptoJS.AES.encrypt(key,randseed).toString();
 		localStorage.setItem("key",enckey);
+		//自分自身を信頼する
+		trusted.setItem(myRSAKey.getFingerprint(),{mail:$("#email").val()});
 	}
 	seedrandom();
 }
@@ -171,6 +174,8 @@ function seedrandom(){
 					resSesKey(mes);
 				if(mes.mode == "reKey")
 					reKey(mes);
+				if(mes.mode == "IHaveKey")
+					processIHaveKey(mes);
 			});
 			socket.emit("init",{room:$("#room").val()});
 
@@ -180,15 +185,14 @@ function seedrandom(){
 			$("#messege").attr("disabled","disabled");
 			myID = MD5(myRSAKey.getFingerprint() + (new Date()).getTime());
 			emitPubKey();
-			setTimeout(function(){
-				console.log("15seconds passed");
+			waitIHaveKeyTimer = setTimeout(function(){
+				console.log("5seconds passed");
 				if($("#seskey").val() == ""){
-					console.log("genseskey & emitrekey");
-					genSesKey();
+					console.log("emitrekey");
 					emitReKey();
 				}
 
-			},15000);
+			},5000);
 			},document.getElementById("progress"));
 }
 
@@ -257,6 +261,10 @@ function store(){
 }
 function reqSesKey(mes){
 	var sesKey = $("#seskey").val();
+	if(sesKey == ""){
+		console.log("no seskey. return");
+		return;
+	}
 	var pubKey = new RSAKey();
 	pubKey.loadJSON(mes.pubKey);
 	var encSesKey = pubKey.encryptSessionKey(sesKey);
@@ -264,6 +272,7 @@ function reqSesKey(mes){
 		console.log("mes.id=myID. return");
 		return;
 	} else {
+		sendIHaveKey(mes);
 		if(trusted.getItem(pubKey.getFingerprint())){
 			console.log("trusted send key");
 			sendSesKey(encSesKey);
@@ -313,6 +322,7 @@ function emitPubKey(){
 		mode:"reqSesKey"});
 }
 function emitReKey(){
+	genSesKey();
 	socket.emit("mes",{mode:"reKey",id: myID});
 }
 function genSesKey(){
@@ -324,4 +334,11 @@ function genSesKey(){
 	var sessionKey = cryptico.bytes2string(key);
 	$("#seskey").val(sessionKey);
 	$("#messege").removeAttr("disabled");
+}
+function sendIHaveKey(mes){
+	socket.emit("mes",{mode:"IHaveKey",id:mes.id});
+}
+function processIHaveKey(mes){
+	console.log("someone has key");
+	clearTimeout(waitIHaveKeyTimer);
 }
