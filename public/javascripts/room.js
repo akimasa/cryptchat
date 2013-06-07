@@ -169,6 +169,7 @@ function seedrandom(){
 			//login後の処理
 
 			socket.on("mes",function(mes){
+				try {
 				if(mes.mode == "mes")
 					update(mes);
 				if(mes.mode == "reqSesKey")
@@ -179,6 +180,9 @@ function seedrandom(){
 					reKey(mes);
 				if(mes.mode == "IHaveKey")
 					processIHaveKey(mes);
+				} catch (e) {
+					console.log(e);
+				}
 			});
 			socket.emit("init",{room:$("#room").val()});
 
@@ -314,12 +318,39 @@ function reqSesKey(mes){
 function sendSesKey(encSesKey,id){
 	socket.emit("mes",{encKey:encSesKey,
 		id:id,
+		mail:$("#email").val(),
+		pubKey:myRSAKey.toPubString(),
+		encKeySig: myRSAKey.signString(encSesKey,"sha256"),
 		mode:"resSesKey"});
 
 }
 function resSesKey(mes){
 	if($("#seskey").val() != "" || myID != mes.id)
 		return;
+	var pubKey = new RSAKey();
+	pubKey.loadJSON(mes.pubKey);
+	console.log(pubKey);
+	if(!myRSAKey.verifyString(mes.encKey,mes.encKeySig))
+		console.log("forged reskey");
+	if(trusted.getItem(pubKey.getFingerprint())){
+		console.log("trusted recv key");
+		$("#seskey").val(myRSAKey.decryptSessionKey(mes.encKey));
+		$("#messege").removeAttr("disabled");
+	} else {
+		var $p = $("<span>").addClass("askTrust");
+		$p.append($("<span>").text(mes.mail).addClass("mail"));		
+		$p.append(document.createTextNode("("));
+		$p.append($("<span>").text(pubKey.getFingerprint()).addClass("fingerprint"));		
+		$p.append(document.createTextNode(")を信用して鍵を受け取る？"));
+		var dialog = makeDialog(function (answer){
+			if(answer){
+				console.log("yes recv key")
+				trusted.setItem(pubKey.getFingerprint(),{mail:mes.mail,pubKey:mes.pubKey});
+				$("#seskey").val(myRSAKey.decryptSessionKey(mes.encKey));
+				$("#messege").removeAttr("disabled");
+			}
+		},$p);
+	}
 	$("#seskey").val(myRSAKey.decryptSessionKey(mes.encKey));
 	$("#messege").removeAttr("disabled");
 }
