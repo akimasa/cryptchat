@@ -158,7 +158,7 @@ function genKey(){
 		var enckey = CryptoJS.AES.encrypt(key,randseed).toString();
 		localStorage.setItem("key",enckey);
 		//自分自身を信頼する
-		trusted.setItem(myRSAKey.getFingerprint(),{mail:$("#email").val()});
+		trusted.setItem(myRSAKey.getFingerprint(),{mail:$("#email").val(),pubKey:myRSAKey.toPubString()});
 	}
 	seedrandom();
 }
@@ -289,7 +289,7 @@ function reqSesKey(mes){
 				if(answer){
 					console.log("yes")
 					console.log(pubKey.getFingerprint());
-					trusted.setItem(pubKey.getFingerprint(),{mail:mes.mail});
+					trusted.setItem(pubKey.getFingerprint(),{mail:mes.mail,pubKey:mes.pubKey});
 					sendSesKey(encSesKey);
 				}
 			},$p);
