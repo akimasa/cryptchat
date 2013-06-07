@@ -19,5 +19,8 @@ a {
 	color:red
 }
 #chat .forged{
-	background-color: red;
+	background-color: #fdd;
+}
+#chat .untrusted{
+	background-color: #dfd;
 }

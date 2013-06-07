@@ -231,16 +231,19 @@ function update(m){
 		.attr("title",time.toString());
 	$oDiv.append($("<span>").text(mes.email+":").addClass("email"));
 	$oDiv.append($("<span>").text(mes.messege).addClass("messege"));
+	if(trusted.getItem(mes.fingerprint)){
+		var pubKey = new RSAKey();
+		pubKey.loadJSON(trusted.getItem(mes.fingerprint).pubKey);
+		if(pubKey.verifyString(m.cipher,m.sig)){
 
-	var pubKey = new RSAKey();
-	pubKey.loadJSON(trusted.getItem(mes.fingerprint).pubKey);
-	if(pubKey.verifyString(m.cipher,m.sig)){
-
+		} else {
+			var $oWarn = $("<div />").addClass("warning").text("verify failed");
+			$oDiv.addClass("forged");
+		}
 	} else {
-		var $oWarn = $("<div />").addClass("warning").text("verify failed");
-		$oDiv.addClass("forged");
+		var $oWarn = $("<div />").addClass("warning").text("untrusted");
+		$oDiv.addClass("untrusted");
 	}
-
 	$("#chat").append($oDiv);
 	if($oWarn)
 		$("#chat").append($oWarn);
