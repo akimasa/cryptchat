@@ -15,3 +15,9 @@ a {
 .askTrust .mail {
 	font-size: 150%;
 }
+#chat .warning{
+	color:red
+}
+#chat .forged{
+	background-color: red;
+}

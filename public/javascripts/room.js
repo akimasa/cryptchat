@@ -206,17 +206,20 @@ function send(){
 	messege = str2b64(messege);
 	var mesObj = {email:email,
 		messege:messege,
+		fingerprint:myRSAKey.getFingerprint(),
 		time:(new Date()).getTime()
 		};
 	mesObj = encMes(mesObj);
-	socket.emit("mes",{cipher:mesObj,mode:"mes"});
+	var sig = myRSAKey.signString(mesObj, "sha256");
+	socket.emit("mes",{cipher:mesObj,sig:sig,mode:"mes"});
 
 }
-function update(mes){
-	console.log(mes);
-	mes = decMes(mes.cipher);
+function update(m){
+	console.log(m);
+	var mes = decMes(m.cipher);
 	mes.messege = b642str(mes.messege);
 	var time = new Date(mes.time);
+
 
 	var $oDiv = $("<div />").addClass("messege");
 	$oDiv.append($("<span>").text("["+((time.getHours()<10) ? "0"+time.getHours() : time.getHours())
@@ -225,7 +228,18 @@ function update(mes){
 	$oDiv.append($("<span>").text(mes.email+":").addClass("email"));
 	$oDiv.append($("<span>").text(mes.messege).addClass("messege"));
 
+	var pubKey = new RSAKey();
+	pubKey.loadJSON(trusted.getItem(mes.fingerprint).pubKey);
+	if(pubKey.verifyString(m.cipher,m.sig)){
+
+	} else {
+		var $oWarn = $("<div />").addClass("warning").text("verify failed");
+		$oDiv.addClass("forged");
+	}
+
 	$("#chat").append($oDiv);
+	if($oWarn)
+		$("#chat").append($oWarn);
 }
 function makeDialog(callback,mes,yes,no){
 	var $oDiv = $("<div />").addClass("dialog");
