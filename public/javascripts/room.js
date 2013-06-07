@@ -292,7 +292,7 @@ function reqSesKey(mes){
 		sendIHaveKey(mes);
 		if(trusted.getItem(pubKey.getFingerprint())){
 			console.log("trusted send key");
-			sendSesKey(encSesKey);
+			sendSesKey(encSesKey,mes.id);
 		} else {
 			var $p = $("<span>").addClass("askTrust");
 			$p.append($("<span>").text(mes.mail).addClass("mail"));		
@@ -304,20 +304,21 @@ function reqSesKey(mes){
 					console.log("yes")
 					console.log(pubKey.getFingerprint());
 					trusted.setItem(pubKey.getFingerprint(),{mail:mes.mail,pubKey:mes.pubKey});
-					sendSesKey(encSesKey);
+					sendSesKey(encSesKey,mes.id);
 				}
 			},$p);
 			setTimeout(function(){ dialog.hide(1000,function() { dialog.remove() }) },10000);
 		}
 	}
 }
-function sendSesKey(encSesKey){
+function sendSesKey(encSesKey,id){
 	socket.emit("mes",{encKey:encSesKey,
+		id:id,
 		mode:"resSesKey"});
 
 }
 function resSesKey(mes){
-	if($("#seskey").val() != "")
+	if($("#seskey").val() != "" || myID != mes.id)
 		return;
 	$("#seskey").val(myRSAKey.decryptSessionKey(mes.encKey));
 	$("#messege").removeAttr("disabled");
