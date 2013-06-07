@@ -220,31 +220,36 @@ function send(){
 }
 function update(m){
 	console.log(m);
-	var mes = decMes(m.cipher);
-	mes.messege = b642str(mes.messege);
-	var time = new Date(mes.time);
+	try {
+		var mes = decMes(m.cipher);
+		mes.messege = b642str(mes.messege);
+		var time = new Date(mes.time);
 
 
-	var $oDiv = $("<div />").addClass("messege");
-	$oDiv.append($("<span>").text("["+((time.getHours()<10) ? "0"+time.getHours() : time.getHours())
-+":"+((time.getMinutes()<10) ? "0"+time.getMinutes() : time.getMinutes())+"]").addClass("time"))
-		.attr("title",time.toString());
-	$oDiv.append($("<span>").text(mes.email+":").addClass("email"));
-	$oDiv.append($("<span>").text(mes.messege).addClass("messege"));
-	if(trusted.getItem(mes.fingerprint)){
-		var pubKey = new RSAKey();
-		pubKey.loadJSON(trusted.getItem(mes.fingerprint).pubKey);
-		if(pubKey.verifyString(m.cipher,m.sig)){
+		var $oDiv = $("<div />").addClass("messege");
+		$oDiv.append($("<span>").text("["+((time.getHours()<10) ? "0"+time.getHours() : time.getHours())
+					+":"+((time.getMinutes()<10) ? "0"+time.getMinutes() : time.getMinutes())+"]").addClass("time"))
+			.attr("title",time.toString());
+		$oDiv.append($("<span>").text(mes.email+":").addClass("email"));
+		$oDiv.append($("<span>").text(mes.messege).addClass("messege"));
+		if(trusted.getItem(mes.fingerprint)){
+			var pubKey = new RSAKey();
+			pubKey.loadJSON(trusted.getItem(mes.fingerprint).pubKey);
+			if(pubKey.verifyString(m.cipher,m.sig)){
 
+			} else {
+				var $oWarn = $("<div />").addClass("warning").text("verify failed");
+				$oDiv.addClass("forged");
+			}
 		} else {
-			var $oWarn = $("<div />").addClass("warning").text("verify failed");
-			$oDiv.addClass("forged");
+			var $oWarn = $("<div />").addClass("warning").text("untrusted");
+			$oDiv.addClass("untrusted");
 		}
-	} else {
-		var $oWarn = $("<div />").addClass("warning").text("untrusted");
-		$oDiv.addClass("untrusted");
+		$("#chat").append($oDiv);
+	} catch (e) {
+		console.log("decrypt failed");
+		var $oWarn = $("<div />").addClass("warning").text("cannot decrypt");
 	}
-	$("#chat").append($oDiv);
 	if($oWarn)
 		$("#chat").append($oWarn);
 }
