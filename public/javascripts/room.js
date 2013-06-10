@@ -230,7 +230,17 @@ function update(m){
 		$oDiv.append($("<span>").text("["+((time.getHours()<10) ? "0"+time.getHours() : time.getHours())
 					+":"+((time.getMinutes()<10) ? "0"+time.getMinutes() : time.getMinutes())+"]").addClass("time"))
 			.attr("title",time.toString());
-		$oDiv.append($("<span>").text(mes.email+":").addClass("email"));
+		if(trusted.getItem(mes.fingerprint)){
+			if(trusted.getItem(mes.fingerprint).mail == mes.email){
+				$oDiv.append($("<span>").text(mes.email+":").addClass("email"));
+			} else {
+				$oDiv.append($("<span>").text(mes.email+":").addClass("email").addClass("forged"));
+				var $oForgedMail = $("<div />").addClass("warning").text("forged mail address");
+			}
+		} else {
+			$oDiv.append($("<span>").text(mes.email+":").addClass("email").addClass("untrusted"));
+			var $oForgedMail = $("<div />").addClass("warning").text("untrusted mail address");
+		}
 		$oDiv.append($("<span>").text(mes.messege).addClass("messege"));
 		if(trusted.getItem(mes.fingerprint)){
 			var pubKey = new RSAKey();
@@ -252,6 +262,8 @@ function update(m){
 	}
 	if($oWarn)
 		$("#chat").append($oWarn);
+	if($oForgedMail)
+		$("#chat").append($oForgedMail);
 }
 function makeDialog(callback,mes,yes,no){
 	var $oDiv = $("<div />").addClass("dialog");
