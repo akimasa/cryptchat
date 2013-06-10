@@ -189,7 +189,7 @@ function seedrandom(){
 			$("#login").css("display","none");
 			$("#main").css("display","");
 			$("#myemail").text($("#email").val());
-			$("#messege").attr("disabled","disabled");
+			$("#message").attr("disabled","disabled");
 			myID = MD5(myRSAKey.getFingerprint() + (new Date()).getTime());
 			emitPubKey();
 			waitIHaveKeyTimer = setTimeout(function(){
@@ -205,11 +205,11 @@ function seedrandom(){
 
 function send(){
 
-	var messege = $("#messege").val();
+	var message = $("#message").val();
 	var mail = $("#email").val();
-	messege = str2b64(messege);
+	message = str2b64(message);
 	var mesObj = {mail:mail,
-		messege:messege,
+		message:message,
 		fingerprint:myRSAKey.getFingerprint(),
 		time:(new Date()).getTime()
 		};
@@ -222,11 +222,11 @@ function update(m){
 	console.log(m);
 	try {
 		var mes = decMes(m.cipher);
-		mes.messege = b642str(mes.messege);
+		mes.message = b642str(mes.message);
 		var time = new Date(mes.time);
 
 
-		var $oDiv = $("<div />").addClass("messege");
+		var $oDiv = $("<div />").addClass("message");
 		$oDiv.append($("<span>").text("["+((time.getHours()<10) ? "0"+time.getHours() : time.getHours())
 					+":"+((time.getMinutes()<10) ? "0"+time.getMinutes() : time.getMinutes())+"]").addClass("time"))
 			.attr("title",time.toString());
@@ -241,7 +241,7 @@ function update(m){
 			$oDiv.append($("<span>").text(mes.mail+":").addClass("email").addClass("untrusted"));
 			var $oForgedMail = $("<div />").addClass("warning").text("untrusted mail address");
 		}
-		$oDiv.append($("<span>").text(mes.messege).addClass("messege"));
+		$oDiv.append($("<span>").text(mes.message).addClass("message"));
 		if(trusted.getItem(mes.fingerprint)){
 			var pubKey = new RSAKey();
 			pubKey.loadJSON(trusted.getItem(mes.fingerprint).pubKey);
@@ -357,7 +357,7 @@ function resSesKey(mes){
 	if(trusted.getItem(pubKey.getFingerprint())){
 		console.log("trusted recv key");
 		$("#seskey").val(myRSAKey.decryptSessionKey(mes.encKey));
-		$("#messege").removeAttr("disabled");
+		$("#message").removeAttr("disabled");
 	} else {
 		var $p = $("<span>").addClass("askTrust");
 		$p.append($("<span>").text(mes.mail).addClass("mail"));		
@@ -369,12 +369,12 @@ function resSesKey(mes){
 				console.log("yes recv key")
 				trusted.setItem(pubKey.getFingerprint(),{mail:mes.mail,pubKey:mes.pubKey});
 				$("#seskey").val(myRSAKey.decryptSessionKey(mes.encKey));
-				$("#messege").removeAttr("disabled");
+				$("#message").removeAttr("disabled");
 			}
 		},$p);
 	}
 	$("#seskey").val(myRSAKey.decryptSessionKey(mes.encKey));
-	$("#messege").removeAttr("disabled");
+	$("#message").removeAttr("disabled");
 }
 function reKey(mes){
 	console.log("rekey: emitpubkey");
@@ -404,7 +404,7 @@ function genSesKey(){
 
 	var sessionKey = cryptico.bytes2string(key);
 	$("#seskey").val(sessionKey);
-	$("#messege").removeAttr("disabled");
+	$("#message").removeAttr("disabled");
 }
 function sendIHaveKey(mes){
 	socket.emit("mes",{mode:"IHaveKey",id:mes.id});
