@@ -338,8 +338,10 @@ function resSesKey(mes){
 	var pubKey = new RSAKey();
 	pubKey.loadJSON(mes.pubKey);
 	console.log(pubKey);
-	if(!myRSAKey.verifyString(mes.encKey,mes.encKeySig))
+	if(!pubKey.verifyString(mes.encKey,mes.encKeySig)){
 		console.log("forged reskey");
+		return;
+	}
 	if(trusted.getItem(pubKey.getFingerprint())){
 		console.log("trusted recv key");
 		$("#seskey").val(myRSAKey.decryptSessionKey(mes.encKey));
