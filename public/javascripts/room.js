@@ -262,7 +262,7 @@ function makeDialog(callback,mes,yes,no){
 	}
 	if(!yes)
 		var yes="yes";
-	$oDiv.append($("<span>")
+	$oDiv.append($("<button>")
 			.text(yes)
 			.addClass("yes")
 			.click(function(){
@@ -271,7 +271,7 @@ function makeDialog(callback,mes,yes,no){
 			}));
 	if(!no)
 		var no="no";
-	$oDiv.append($("<span>")
+	$oDiv.append($("<button>")
 			.text(no)
 			.addClass("no")
 			.click(function(){
