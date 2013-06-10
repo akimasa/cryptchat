@@ -1,10 +1,10 @@
-function trueRandomGen(){
+function TrueRandomGen(){
 	this.collectedRandom = [];
 	this.randSeed;
 	this.seedHashed=0;
 	return this;
 }
-trueRandomGen.prototype.collectRandom = function (callback,progress){
+TrueRandomGen.prototype.collectRandom = function (callback,progress){
 	var that = this;
 	if(progress)
 	progress.value=0;

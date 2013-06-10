@@ -163,7 +163,7 @@ function genKey(){
 	seedrandom();
 }
 function seedrandom(){
-	r = new trueRandomGen();
+	r = new TrueRandomGen();
 	r.collectRandom(function(s){ 
 			Math.seedrandom(s);
 			//login後の処理
