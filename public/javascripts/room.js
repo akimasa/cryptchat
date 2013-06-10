@@ -206,9 +206,9 @@ function seedrandom(){
 function send(){
 
 	var messege = $("#messege").val();
-	var email = $("#email").val();
+	var mail = $("#email").val();
 	messege = str2b64(messege);
-	var mesObj = {email:email,
+	var mesObj = {mail:mail,
 		messege:messege,
 		fingerprint:myRSAKey.getFingerprint(),
 		time:(new Date()).getTime()
@@ -231,14 +231,14 @@ function update(m){
 					+":"+((time.getMinutes()<10) ? "0"+time.getMinutes() : time.getMinutes())+"]").addClass("time"))
 			.attr("title",time.toString());
 		if(trusted.getItem(mes.fingerprint)){
-			if(trusted.getItem(mes.fingerprint).mail == mes.email){
-				$oDiv.append($("<span>").text(mes.email+":").addClass("email"));
+			if(trusted.getItem(mes.fingerprint).mail == mes.mail){
+				$oDiv.append($("<span>").text(mes.mail+":").addClass("email"));
 			} else {
-				$oDiv.append($("<span>").text(mes.email+":").addClass("email").addClass("forged"));
+				$oDiv.append($("<span>").text(mes.mail+":").addClass("email").addClass("forged"));
 				var $oForgedMail = $("<div />").addClass("warning").text("forged mail address");
 			}
 		} else {
-			$oDiv.append($("<span>").text(mes.email+":").addClass("email").addClass("untrusted"));
+			$oDiv.append($("<span>").text(mes.mail+":").addClass("email").addClass("untrusted"));
 			var $oForgedMail = $("<div />").addClass("warning").text("untrusted mail address");
 		}
 		$oDiv.append($("<span>").text(mes.messege).addClass("messege"));
