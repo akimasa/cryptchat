@@ -128,10 +128,6 @@ var waitIHaveKeyTimer;
 $(function(){
 	trusted = new hashDB("trusted_"+$("#room").val());
 	socket = io.connect('/');
-	//debug code
-	$("#email").val("test@example.com");
-	$("#password").val("password");
-	//end debug code
 	$("#main").css("display","none");
 
 });
@@ -196,9 +192,7 @@ function seedrandom(){
 			myID = MD5(myRSAKey.getFingerprint() + (new Date()).getTime());
 			emitPubKey();
 			waitIHaveKeyTimer = setTimeout(function(){
-				console.log("5seconds passed");
 				if($("#seskey").val() == ""){
-					console.log("emitrekey");
 					emitReKey();
 				}
 
@@ -222,7 +216,6 @@ function send(){
 
 }
 function update(m){
-	console.log(m);
 	try {
 		var mes = decMes(m.cipher);
 		mes.message = b642str(mes.message);
@@ -260,7 +253,6 @@ function update(m){
 		}
 		$("#chat").append($oDiv);
 	} catch (e) {
-		console.log("decrypt failed");
 		var $oWarn = $("<div />").addClass("warning").text("cannot decrypt");
 	}
 	if($oWarn)
@@ -305,37 +297,28 @@ function store(){
 }
 function reqSesKey(mes){
 	var sesKey = $("#seskey").val();
-	if(sesKey == ""){
-		console.log("no seskey. return");
+	if(sesKey == "" || mes.id == myID){
 		return;
 	}
 	var pubKey = new RSAKey();
 	pubKey.loadJSON(mes.pubKey);
 	var encSesKey = pubKey.encryptSessionKey(sesKey);
-	if(mes.id == myID){
-		console.log("mes.id=myID. return");
-		return;
+	sendIHaveKey(mes);
+	if(trusted.getItem(pubKey.getFingerprint())){
+		sendSesKey(encSesKey,mes.id);
 	} else {
-		sendIHaveKey(mes);
-		if(trusted.getItem(pubKey.getFingerprint())){
-			console.log("trusted send key");
-			sendSesKey(encSesKey,mes.id);
-		} else {
-			var $p = $("<span>").addClass("askTrust");
-			$p.append($("<span>").text(mes.mail).addClass("mail"));		
-			$p.append(document.createTextNode("("));
-			$p.append($("<span>").text(pubKey.getFingerprint()).addClass("fingerprint"));		
-			$p.append(document.createTextNode(")を信用して鍵を送る？"));
-			var dialog = makeDialog(function (answer){
-				if(answer){
-					console.log("yes")
-					console.log(pubKey.getFingerprint());
-					trusted.setItem(pubKey.getFingerprint(),{mail:mes.mail,pubKey:mes.pubKey});
-					sendSesKey(encSesKey,mes.id);
-				}
-			},$p);
-			setTimeout(function(){ dialog.hide(1000,function() { dialog.remove() }) },10000);
-		}
+		var $p = $("<span>").addClass("askTrust");
+		$p.append($("<span>").text(mes.mail).addClass("mail"));		
+		$p.append(document.createTextNode("("));
+		$p.append($("<span>").text(pubKey.getFingerprint()).addClass("fingerprint"));		
+		$p.append(document.createTextNode(")を信用して鍵を送る？"));
+		var dialog = makeDialog(function (answer){
+			if(answer){
+				trusted.setItem(pubKey.getFingerprint(),{mail:mes.mail,pubKey:mes.pubKey});
+				sendSesKey(encSesKey,mes.id);
+			}
+		},$p);
+		setTimeout(function(){ dialog.hide(1000,function() { dialog.remove() }) },10000);
 	}
 }
 function sendSesKey(encSesKey,id){
@@ -348,17 +331,11 @@ function sendSesKey(encSesKey,id){
 
 }
 function resSesKey(mes){
-	if($("#seskey").val() != "" || myID != mes.id)
-		return;
 	var pubKey = new RSAKey();
 	pubKey.loadJSON(mes.pubKey);
-	console.log(pubKey);
-	if(!pubKey.verifyString(mes.encKey,mes.encKeySig)){
-		console.log("forged reskey");
+	if($("#seskey").val() != "" || myID != mes.id || !pubKey.verifyString(mes.encKey,mes.encKeySig))
 		return;
-	}
 	if(trusted.getItem(pubKey.getFingerprint())){
-		console.log("trusted recv key");
 		$("#seskey").val(myRSAKey.decryptSessionKey(mes.encKey));
 		$("#message").removeAttr("disabled");
 	} else {
@@ -369,7 +346,6 @@ function resSesKey(mes){
 		$p.append(document.createTextNode(")を信用して鍵を受け取る？"));
 		var dialog = makeDialog(function (answer){
 			if(answer){
-				console.log("yes recv key")
 				trusted.setItem(pubKey.getFingerprint(),{mail:mes.mail,pubKey:mes.pubKey});
 				$("#seskey").val(myRSAKey.decryptSessionKey(mes.encKey));
 				$("#message").removeAttr("disabled");
@@ -380,12 +356,9 @@ function resSesKey(mes){
 	$("#message").removeAttr("disabled");
 }
 function reKey(mes){
-	console.log("rekey: emitpubkey");
-	if(mes.id == myID){
-		console.log("my rekey req.ignore")
-	} else {
-		emitPubKey();
-	}
+	if(mes.id == myID)
+		return;
+	emitPubKey();
 }
 function emitPubKey(){
 	$("#seskey").val("");
@@ -413,6 +386,5 @@ function sendIHaveKey(mes){
 	socket.emit("mes",{mode:"IHaveKey",id:mes.id});
 }
 function processIHaveKey(mes){
-	console.log("someone has key");
 	clearTimeout(waitIHaveKeyTimer);
 }
