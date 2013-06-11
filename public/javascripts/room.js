@@ -289,12 +289,6 @@ function makeDialog(callback,mes,yes,no){
 	return $oDiv;
 }
 
-function store(){
-	var key = $("#key").val();
-	var enckey = CryptoJS.AES.encrypt(key,$("#password").val()).toString();
-	localStorage.setItem("key",enckey);
-//	alert(localStorage.getItem("key"))
-}
 function reqSesKey(mes){
 	var sesKey = $("#seskey").val();
 	if(sesKey == "" || mes.id == myID){
