@@ -23,11 +23,11 @@ html
       input#password(type="password",placeholder="password")
       input(type="submit",value="login")
       progress#progress(max=1000,value=0)
-    input#key
-    input#seskey(placeholder="seskey")
+    input#key(type="hidden")
+    input#seskey(type="hidden")
     div#main
-      div#chat message appers here
-      div#dialogs dialogs appears here
+      div#chat
+      div#dialogs
       form#sendform(onsubmit="send();return false")
         span#myemail
         input#message
