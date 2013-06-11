@@ -1,3 +1,10 @@
+cryptchat
+=========
+http://gigazine.net/news/20130524-skype-backdoor-comfirmation/
+
+なんやらSkypeもメッセージを第三者が閲覧できるらしいので、
+エンドツーエンドで暗号化されて第三者にメッセージが閲覧されないようなチャットを作ってみた。
+
 使い方
 ------
 1. `node app.js`
