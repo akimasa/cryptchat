@@ -169,6 +169,7 @@ function seedrandom(){
 			//login後の処理
 
 			socket.on("mes",function(mes){
+				var before = (new Date()).getTime();
 				try {
 				if(mes.mode == "mes")
 					update(mes);
@@ -183,6 +184,8 @@ function seedrandom(){
 				} catch (e) {
 					console.log(e);
 				}
+				var after = (new Date()).getTime();
+				console.log((after-before)+"ms");
 			});
 			socket.emit("init",{room:$("#room").val()});
 
