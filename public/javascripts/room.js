@@ -213,7 +213,7 @@ function send(){
 	mesObj = encMes(mesObj);
 	var sig = myRSAKey.signString(mesObj, "sha256");
 	socket.emit("mes",{cipher:mesObj,sig:sig,mode:"mes"});
-
+	$("#message").val("")
 }
 function update(m){
 	try {
