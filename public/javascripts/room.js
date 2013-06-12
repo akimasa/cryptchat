@@ -146,6 +146,7 @@ function genKey(){
 		console.log(e);
 		//return;
 
+		var before = (new Date()).getTime();
 		var worker = new Worker("/javascripts/work.js");
 		worker.onmessage = function(event) {
 			myRSAKey = new RSAKey();
@@ -158,6 +159,8 @@ function genKey(){
 			localStorage.setItem("key",enckey);
 			//自分自身を信頼する
 			trusted.setItem(myRSAKey.getFingerprint(),{mail:$("#email").val(),pubKey:myRSAKey.toPubString()});
+			var after = (new Date().getTime());
+			console.log("generateRSAKey:"+(after-before)+"ms");
 			seedrandom();
 		};
 		worker.postMessage(randseed);
