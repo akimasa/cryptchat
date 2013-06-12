@@ -40,7 +40,6 @@ server.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
 sock.on('connection', function(client) {
-	client.emit("connected");
 	client.on("init",function(req) {
 		console.log(req);
 		client.set('room',req.room);
@@ -52,8 +51,6 @@ sock.on('connection', function(client) {
 				console.log("!room");
 				return;
 			}
-			console.log("room:"+room);
-			console.log("mes:"+mes);
 			sock.sockets.to(room).emit("mes",mes);
 		});
 	});
