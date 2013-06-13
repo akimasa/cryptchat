@@ -405,5 +405,6 @@ function sendIHaveKey(mes){
 	socket.emit("mes",{mode:"IHaveKey",id:mes.id});
 }
 function processIHaveKey(mes){
-	clearTimeout(waitIHaveKeyTimer);
+	if(mes.id == myID)
+		clearTimeout(waitIHaveKeyTimer);
 }
