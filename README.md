@@ -7,7 +7,7 @@ http://gigazine.net/news/20130524-skype-backdoor-comfirmation/
 
 使い方
 ------
-1. `node app.js`
+1. `npm install` & `node app.js`
 2. http://127.0.0.1:3000/room/foo (fooは変更可能)
 3. 適当なメールアドレスとパスワードを入力
 4. loginを押す
@@ -22,7 +22,7 @@ http://gigazine.net/news/20130524-skype-backdoor-comfirmation/
 
 Usage
 -----
-1. `node app.js`
+1. `npm install` & `node app.js`
 2. Open http://127.0.0.1:3000/room/foo ("foo" can be changed)
 3. Enter some email address and password.
 4. Click login
