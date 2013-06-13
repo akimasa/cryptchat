@@ -248,21 +248,21 @@ function update(m){
 
 
 		var $oDiv = $("<div />").addClass("message");
-		$oDiv.append($("<span>").text("["+((time.getHours()<10) ? "0"+time.getHours() : time.getHours())
+		$oDiv.append($("<span />").text("["+((time.getHours()<10) ? "0"+time.getHours() : time.getHours())
 					+":"+((time.getMinutes()<10) ? "0"+time.getMinutes() : time.getMinutes())+"]").addClass("time"))
 			.attr("title",time.toString());
 		if(trusted.getItem(mes.fingerprint)){
 			if(trusted.getItem(mes.fingerprint).mail == mes.mail){
-				$oDiv.append($("<span>").text(mes.mail+":").addClass("email"));
+				$oDiv.append($("<span />").text(mes.mail+":").addClass("email"));
 			} else {
-				$oDiv.append($("<span>").text(mes.mail+":").addClass("email").addClass("forged"));
+				$oDiv.append($("<span />").text(mes.mail+":").addClass("email").addClass("forged"));
 				var $oForgedMail = $("<div />").addClass("warning").text("forged mail address");
 			}
 		} else {
-			$oDiv.append($("<span>").text(mes.mail+":").addClass("email").addClass("untrusted"));
+			$oDiv.append($("<span />").text(mes.mail+":").addClass("email").addClass("untrusted"));
 			var $oForgedMail = $("<div />").addClass("warning").text("untrusted mail address");
 		}
-		$oDiv.append($("<span>").text(mes.message).addClass("message"));
+		$oDiv.append($("<span />").text(mes.message).addClass("message"));
 		if(trusted.getItem(mes.fingerprint)){
 			var pubKey = new RSAKey();
 			pubKey.loadJSON(trusted.getItem(mes.fingerprint).pubKey);
@@ -290,7 +290,7 @@ function makeDialog(callback,mes,yes,no){
 	if(mes instanceof jQuery){
 		$oDiv.append(mes.addClass("mes"));
 	} else {
-		$oDiv.append($("<span>").text(mes).addClass("mes"));
+		$oDiv.append($("<span />").text(mes).addClass("mes"));
 	}
 	if(!yes)
 		var yes="yes";
@@ -326,10 +326,10 @@ function reqSesKey(mes){
 	if(trusted.getItem(pubKey.getFingerprint())){
 		sendSesKey(encSesKey,mes.id);
 	} else {
-		var $p = $("<span>").addClass("askTrust");
-		$p.append($("<span>").text(mes.mail).addClass("mail"));		
+		var $p = $("<span />").addClass("askTrust");
+		$p.append($("<span />").text(mes.mail).addClass("mail"));		
 		$p.append(document.createTextNode("("));
-		$p.append($("<span>").text(pubKey.getFingerprint()).addClass("fingerprint"));		
+		$p.append($("<span />").text(pubKey.getFingerprint()).addClass("fingerprint"));		
 		$p.append(document.createTextNode(")を信用して鍵を送る？"));
 		var dialog = makeDialog(function (answer){
 			if(answer){
@@ -358,10 +358,10 @@ function resSesKey(mes){
 		$("#seskey").val(myRSAKey.decryptSessionKey(mes.encKey));
 		$("#message").removeAttr("disabled");
 	} else {
-		var $p = $("<span>").addClass("askTrust");
-		$p.append($("<span>").text(mes.mail).addClass("mail"));		
+		var $p = $("<span />").addClass("askTrust");
+		$p.append($("<span />").text(mes.mail).addClass("mail"));		
 		$p.append(document.createTextNode("("));
-		$p.append($("<span>").text(pubKey.getFingerprint()).addClass("fingerprint"));		
+		$p.append($("<span />").text(pubKey.getFingerprint()).addClass("fingerprint"));		
 		$p.append(document.createTextNode(")を信用して鍵を受け取る？"));
 		var dialog = makeDialog(function (answer){
 			if(answer){
