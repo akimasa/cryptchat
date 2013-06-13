@@ -244,13 +244,10 @@ function update(m){
 	try {
 		var mes = decMes(m.cipher);
 		mes.message = b642str(mes.message);
-		var time = new Date(mes.time);
 
 
 		var $oDiv = $("<div />").addClass("message");
-		$oDiv.append($("<span />").text("["+((time.getHours()<10) ? "0"+time.getHours() : time.getHours())
-					+":"+((time.getMinutes()<10) ? "0"+time.getMinutes() : time.getMinutes())+"]").addClass("time"))
-			.attr("title",time.toString());
+		$oDiv.append(formatTime(mes.time));
 		if(trusted.getItem(mes.fingerprint)){
 			if(trusted.getItem(mes.fingerprint).mail == mes.mail){
 				$oDiv.append($("<span />").text(mes.mail+":").addClass("email"));
@@ -315,10 +312,13 @@ function makeDialog(callback,mes,yes,no){
 }
 
 function reqSesKey(mes){
+	//簡易的な入室表示機能。rekey時に再び表示される問題はあとで直す
 	var $oDiv = $("<div />").addClass("login");
+	$oDiv.append(formatTime(new Date()));
 	$oDiv.append($("<span />").text(mes.mail).addClass("mail"));
 	$oDiv.append(document.createTextNode("が入室しました"));
 	$("#chat").append($oDiv);
+
 	var sesKey = $("#seskey").val();
 	if(sesKey == "" || mes.id == myID){
 		return;
@@ -411,4 +411,8 @@ function sendIHaveKey(mes){
 function processIHaveKey(mes){
 	if(mes.id == myID)
 		clearTimeout(waitIHaveKeyTimer);
+}
+function formatTime(time){
+		time = new Date(time);
+		return $("<span />").text("["+((time.getHours()<10) ? "0"+time.getHours() : time.getHours())+":"+((time.getMinutes()<10) ? "0"+time.getMinutes() : time.getMinutes())+"]").addClass("time").attr("title",time.toString());
 }
