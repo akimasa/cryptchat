@@ -22,7 +22,11 @@ html
       input#email(type="text",placeholder="email")
       input#password(type="password",placeholder="password")
       input(type="submit",value="login")
+      br
       progress#progress(max=1000,value=0)
+      label
+        input#useworker(type="checkbox",checked="checked")
+        use web worker
     input#key(type="hidden")
     input#seskey(type="hidden")
     div#main

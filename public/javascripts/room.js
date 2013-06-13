@@ -145,13 +145,31 @@ function genKey(){
 	} catch(e) {
 		console.log(e);
 		//return;
+		if(typeof(Worker !== "undefined") && $("#useworker").is(":checked")) {
+			var before = (new Date()).getTime();
+			var worker = new Worker("/javascripts/work.js");
+			worker.onmessage = function(event) {
+				myRSAKey = new RSAKey();
+				myRSAKey.loadJSON(event.data);
 
-		var before = (new Date()).getTime();
-		var worker = new Worker("/javascripts/work.js");
-		worker.onmessage = function(event) {
-			myRSAKey = new RSAKey();
-			myRSAKey.loadJSON(event.data);
+				$("#key").val(myRSAKey.toString());
 
+				var key = $("#key").val();
+				var enckey = CryptoJS.AES.encrypt(key,randseed).toString();
+				localStorage.setItem("key",enckey);
+				//自分自身を信頼する
+				trusted.setItem(myRSAKey.getFingerprint(),{mail:$("#email").val(),pubKey:myRSAKey.toPubString()});
+				var after = (new Date().getTime());
+				console.log("generateRSAKey(worker):"+(after-before)+"ms");
+				seedrandom();
+			};
+			worker.postMessage(randseed);
+			$("#progress").removeAttr("max").removeAttr("value");
+		} else {
+			var before = (new Date()).getTime();
+			myRSAKey = cryptico.generateRSAKey(randseed,1024);
+			var after = (new Date().getTime());
+			console.log("generateRSAKey:"+(after-before)+"ms");
 			$("#key").val(myRSAKey.toString());
 
 			var key = $("#key").val();
@@ -159,12 +177,8 @@ function genKey(){
 			localStorage.setItem("key",enckey);
 			//自分自身を信頼する
 			trusted.setItem(myRSAKey.getFingerprint(),{mail:$("#email").val(),pubKey:myRSAKey.toPubString()});
-			var after = (new Date().getTime());
-			console.log("generateRSAKey:"+(after-before)+"ms");
 			seedrandom();
-		};
-		worker.postMessage(randseed);
-		$("#progress").removeAttr("max").removeAttr("value");
+		}
 
 
 	}
