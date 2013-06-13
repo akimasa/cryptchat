@@ -315,6 +315,10 @@ function makeDialog(callback,mes,yes,no){
 }
 
 function reqSesKey(mes){
+	var $oDiv = $("<div />").addClass("login");
+	$oDiv.append($("<span />").text(mes.mail).addClass("mail"));
+	$oDiv.append(document.createTextNode("が入室しました"));
+	$("#chat").append($oDiv);
 	var sesKey = $("#seskey").val();
 	if(sesKey == "" || mes.id == myID){
 		return;
