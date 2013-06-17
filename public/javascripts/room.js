@@ -215,7 +215,7 @@ function seedrandom(){
 			$("#myemail").text($("#email").val());
 			$("#message").attr("disabled","disabled");
 			myID = MD5(myRSAKey.getFingerprint() + (new Date()).getTime());
-			emitPubKey();
+			emitPubKey("init");
 			waitIHaveKeyTimer = setTimeout(function(){
 				if($("#seskey").val() == ""){
 					emitReKey();
@@ -312,12 +312,13 @@ function makeDialog(callback,mes,yes,no){
 }
 
 function reqSesKey(mes){
-	//簡易的な入室表示機能。rekey時に再び表示される問題はあとで直す
-	var $oDiv = $("<div />").addClass("login");
-	$oDiv.append(formatTime(new Date()));
-	$oDiv.append($("<span />").text(mes.mail).addClass("mail"));
-	$oDiv.append(document.createTextNode("が入室しました"));
-	$("#chat").append($oDiv);
+	if(mes.caller == "init"){
+		var $oDiv = $("<div />").addClass("login");
+		$oDiv.append(formatTime(new Date()));
+		$oDiv.append($("<span />").text(mes.mail).addClass("mail"));
+		$oDiv.append(document.createTextNode("が入室しました"));
+		$("#chat").append($oDiv);
+	}
 
 	var sesKey = $("#seskey").val();
 	if(sesKey == "" || mes.id == myID){
@@ -381,14 +382,15 @@ function resSesKey(mes){
 function reKey(mes){
 	if(mes.id == myID)
 		return;
-	emitPubKey();
+	emitPubKey("reKey");
 }
-function emitPubKey(){
+function emitPubKey(caller){
 	$("#seskey").val("");
 	var pubKeyStr = myRSAKey.toPubString();
 	socket.emit("mes",{pubKey:pubKeyStr,
 		mail:$("#email").val(),
 		id:myID,
+		caller:caller,
 		mode:"reqSesKey"});
 }
 function emitReKey(){
