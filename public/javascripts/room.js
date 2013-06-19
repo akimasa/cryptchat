@@ -133,6 +133,7 @@ $(function(){
 });
 function genKey(){
 	$("#login input[type=submit]").attr("disabled","disabled");
+	$("#infomsg").text("please wait until keys are generated");
 	var randseed = $("#email").val() + ":" + $("#password").val();
 	try{
 		var key = localStorage.getItem("key");
@@ -185,6 +186,7 @@ function genKey(){
 	}
 }
 function seedrandom(){
+	$("#infomsg").text("please move your mouse");
 	r = new TrueRandomGen();
 	r.collectRandom(function(s){ 
 			Math.seedrandom(s);
