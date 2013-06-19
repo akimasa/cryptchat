@@ -19,7 +19,7 @@ html
     h1 Welcome to #{room}
     input(type="hidden",id="room",value=room)
     form#login(onsubmit="genKey();return false")
-      input#email(type="text",placeholder="email")
+      input#email(type="email",placeholder="email")
       input#password(type="password",placeholder="password")
       input(type="submit",value="login")
       br
