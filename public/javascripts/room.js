@@ -132,6 +132,7 @@ $(function(){
 
 });
 function genKey(){
+	$("#login input[type=submit]").attr("disabled","disabled");
 	var randseed = $("#email").val() + ":" + $("#password").val();
 	try{
 		var key = localStorage.getItem("key");
